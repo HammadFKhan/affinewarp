@@ -66,6 +66,7 @@ for n in range(trials):
     smoothed = compute_binned_spike_data(trial_data, sigma, BINSIZE,verbose=False)
     binned_DeltaFoverF[:, :, n] = smoothed.T  # Transpose back for correct axis orderted data shape: {binned_DeltaFoverF.shape}")
 print(f"Generated data shape: {binned_DeltaFoverF.shape}")
+DeltaFoverF = binned_DeltaFoverF
 # %%
 # # Uncomment to z-score...
 #DeltaFoverF -= DeltaFoverF.mean(axis=(1, 2), keepdims=True)
@@ -232,9 +233,13 @@ pull2 = leverPullIndex[:,2]
 ipi = pull2-pull1
 # Create manual warping, aligning to both lever press.
 align_both = PiecewiseWarping(n_knots=0)
-t0 = np.tile((pull1 / tmax)[:, None], (1, 2))
-t1 = np.column_stack((pull2 / tmax, np.full(ipi.size, .75)))
-align_both.manual_fit(DeltaFoverF, t0, t1, recenter=True)
+t0 = np.column_stack((pull1 / tmax, np.full(pull1.size, .35)))
+t0.shape[0] != DeltaFoverF.shape[0] 
+#t1 = np.column_stack((pull2 / tmax, np.full(ipi.size, .5)))
+align_both.manual_fit(DeltaFoverF, t0, recenter=False)
+#%%
+#t0 = np.tile((pull2/ tmax)[:, None], (1, 2))
+
 
 kk = align_both.argsort_warps()
 
